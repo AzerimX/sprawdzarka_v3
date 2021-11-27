@@ -4,7 +4,8 @@ import pathlib
 import numpy as np
 
 #Hi github!
-password = "asd"
+#doing stuff
+foo = "123"
 
 def main():
     input_file_type = input('Podaj typ plików:\n'
