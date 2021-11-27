@@ -3,6 +3,8 @@ import pathlib
 #import pandas as pd
 import numpy as np
 
+#Hi github!
+password = "asd"
 
 def main():
     input_file_type = input('Podaj typ plików:\n'
