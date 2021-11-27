@@ -3,10 +3,8 @@ import pathlib
 #import pandas as pd
 import numpy as np
 
-#Hi github!
-#doing stuff
-foo = "1232"
-password="123"
+# Hi Github!
+
 
 def main():
     input_file_type = input('Podaj typ plików:\n'
@@ -24,9 +22,14 @@ def main():
         if input_file_type == "3":
             extension = ".tif"
 
-        # Search the directory and find all files with given extension
-        file_list = list_files(path, extension)
-        file_list = split_and_strip(file_list)
+        # Process the files
+        process_inputs(path, extension)
+
+    elif input_file_type in ["", "0"]:
+        quit()
+    else:
+        print("Nie wybrano poprawnej opcji.")
+        main()
 
 
 def path_validation():
@@ -41,6 +44,13 @@ def path_validation():
     else:
         print("Nie podano ścieżki")
         return path_validation()
+
+
+def process_inputs(path, extension):
+    """Driver function for processing the files"""
+    file_list = list_files(path, extension)
+    file_list = split_and_strip(file_list, extension)
+    file_list = length_check(file_list)  # todo len check
 
 
 def list_files(path, extension):
@@ -59,18 +69,27 @@ def list_files(path, extension):
     return full_paths
 
 
-def split_and_strip(file_list, extension): # TODO make it full path, then rest of fields , end of file?
+def split_and_strip(file_list, extension):
     """Split the list, strip elements and add a full path at the end"""
-    split_list = [x.split(',') for x in file_list[0]]  # split file names into columns
-    for i in range(len(split_list)):
-        split_list[i] = [x.strip() for x in split_list[i]]  # strip all fields from leading/trailing spaces
-        split_list[i][-1] = split_list[i][-1][0: -1 * len(extension)]  # remove .jpg or .tif
 
-        # add full file name, number and move file name (IDZI-IWAN_2034) closer to beginning
-        temp_list = [str(i + 1), file_list[2][i], split_list[i][-1]]
-        split_list[i] = temp_list + split_list[i]
-        split_list[i] = split_list[i][0:-1]
+    # Extract file names
+    file_names = []
+    for file_path in file_list:
+        file_path = file_path[:-1 * len(extension)]
+        file_names.append(os.path.basename(file_path))
+
+    # Strip, split and add full path as first position
+    split_list = [x.split(',') for x in file_names]  # split file names into columns
+    for i in range(len(file_names)):
+        split_list[i].insert(0, file_list[i])
+    for row in split_list:
+        print(row)
     return split_list
+
+
+
+def length_check(file_list):
+    ... # TODO
 
 
 main()
