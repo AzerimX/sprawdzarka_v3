@@ -6,6 +6,7 @@ import numpy as np
 #Hi github!
 #doing stuff
 foo = "1232"
+password="123"
 
 def main():
     input_file_type = input('Podaj typ plików:\n'
