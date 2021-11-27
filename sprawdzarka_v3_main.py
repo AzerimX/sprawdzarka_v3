@@ -5,7 +5,7 @@ import numpy as np
 
 #Hi github!
 #doing stuff
-foo = "123"
+foo = "1232"
 
 def main():
     input_file_type = input('Podaj typ plików:\n'
