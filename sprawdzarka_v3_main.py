@@ -1,10 +1,6 @@
 import os
 import pathlib
-#import pandas as pd
-import numpy as np
-
-# Hi Github!
-
+import pandas as pd
 
 def main():
     input_file_type = input('Podaj typ plików:\n'
@@ -17,7 +13,17 @@ def main():
         path = path_validation()
         filled_table = process_inputs(path, input_file_type)
         filled_table = check_errors(filled_table, input_file_type)
-        save_to_file(filled_table, input_file_type)
+        pandas_table = pd.DataFrame(data=filled_table, columns=['Ścieżka', 'Nazwisko', 'Imię', 'Rok urodzenia',
+                                                                'Imię ojca', 'Sygnatury', 'Końcówka', 'Błędy'])
+        save_to_file(pandas_table, input_file_type)
+
+        pd.set_option("display.max_rows", None, "display.max_rows", None)
+        pd.set_option('display.max_columns', 10)
+        pd.set_option('display.width', 10000)
+        print(pandas_table)
+
+        # Run the program again
+        main()
     elif input_file_type in ["", "0"]:
         quit()
     else:
@@ -84,8 +90,7 @@ def split_and_strip(file_list, input_file_type):
 
     for i in range(len(file_names)):
         split_list[i].insert(0, file_list[i])
-    # for row in split_list:
-    #     print(row)  # todo remove
+
     return split_list
 
 
@@ -128,7 +133,8 @@ def populate_table(file_list, input_file_type):
             if input_file_type == 1:
                 signature_fields = file_list[i][5:-1]
                 for signature in signature_fields:
-                    filled_table[i][5] += signature + "; "
+                    if signature != "":
+                        filled_table[i][5] += signature + "; "
                 filled_table[i][6] = file_list[i][-1]
 
             # POW
@@ -140,12 +146,6 @@ def populate_table(file_list, input_file_type):
             # PSZ - signature field should be empty
             elif input_file_type == 3:
                 filled_table[i][6] = file_list[i][5]
-
-    # testing todo remove
-    print(filled_table)
-    for row in filled_table:
-        print(row)
-    # testing todo remove
 
     return filled_table
 
@@ -161,12 +161,30 @@ def input_file_type_to_extension(input_file_type):
 
 def check_errors(filled_table, input_file_type):
     """Return the table with errors checked"""
-    ...
+
     return filled_table
     #todo
 
-def save_to_file(filled_table, input_file_type):
-    ...
-    #todo
+
+def save_to_file(pandas_table, input_file_type):
+    next_free_number = 0
+    file_name = ""
+    if input_file_type == 1:
+        file_name = "Lista_KPO_"
+    if input_file_type == 2:
+        file_name = "Lista_POW_"
+    if input_file_type == 3:
+        file_name = "Lista_PSZ_"
+
+    for i in range(1, 10000):
+        if os.path.exists(str("./" + file_name + str(i)) + ".csv"):  # check which number should be next
+            next_free_number = 1
+        else:
+            next_free_number = i
+            break
+    pandas_table.to_csv(str("./" + file_name + str(next_free_number)) + ".csv", index=False,
+                      encoding="windows-1250", sep=';')
+    print("\nLista zapisana do pliku " + file_name + str(next_free_number) + ".csv\n")
+
 
 main()
