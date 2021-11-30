@@ -17,6 +17,7 @@ def main():
         path = path_validation()
         filled_table = process_inputs(path, input_file_type)
         filled_table = check_errors(filled_table, input_file_type)
+        save_to_file(filled_table, input_file_type)
     elif input_file_type in ["", "0"]:
         quit()
     else:
@@ -112,18 +113,33 @@ def populate_table(file_list, input_file_type):
         row_length = len(file_list[i])
         if row_length < 6:
             filled_table[i][7] += "za mało przecinków; "
+        elif row_length > 6 and (input_file_type == 2 or input_file_type == 3):
+            filled_table[i][7] += "za dużo przecinków; "
         else:
+            # Correct number of fields, fill table:
             filled_table[i][1] = file_list[i][1]  # Surname
             filled_table[i][2] = file_list[i][2]  # Name
             filled_table[i][3] = file_list[i][3]  # Year of birth
             filled_table[i][4] = file_list[i][4]  # Father's name
 
-    # Fill signatures
-    for i in range(len(file_list)):
-        if input_file_type == 1:
-            signature_fields = file_list[i][5:-1]
-            print(signature_fields) #todo testing
+            # Fill signatures and end of file
 
+            # KPO
+            if input_file_type == 1:
+                signature_fields = file_list[i][5:-1]
+                for signature in signature_fields:
+                    filled_table[i][5] += signature + "; "
+                filled_table[i][6] = file_list[i][-1]
+
+            # POW
+            elif input_file_type == 2:
+                start_of_file_name = file_list[i][5].find("_")
+                filled_table[i][5] = file_list[i][5][:start_of_file_name]  # fix me variable numbers
+                filled_table[i][6] = file_list[i][5][start_of_file_name:]
+
+            # PSZ - signature field should be empty
+            elif input_file_type == 3:
+                filled_table[i][6] = file_list[i][5]
 
     # testing todo remove
     print(filled_table)
@@ -147,6 +163,10 @@ def check_errors(filled_table, input_file_type):
     """Return the table with errors checked"""
     ...
     return filled_table
+    #todo
 
+def save_to_file(filled_table, input_file_type):
+    ...
+    #todo
 
 main()
