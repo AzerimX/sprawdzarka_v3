@@ -13,18 +13,10 @@ def main():
                             '3: PSZ\n'
                             '0: Zamknij program\n')
     if input_file_type in ["1", "2", "3"]:
+        input_file_type = int(input_file_type)
         path = path_validation()
-        extension = ""
-        if input_file_type == "1":
-            extension = ".jpg"
-        if input_file_type == "2":
-            extension = ".jpg"
-        if input_file_type == "3":
-            extension = ".tif"
-
-        # Process the files
-        process_inputs(path, extension)
-
+        filled_table = process_inputs(path, input_file_type)
+        filled_table = check_errors(filled_table, input_file_type)
     elif input_file_type in ["", "0"]:
         quit()
     else:
@@ -46,16 +38,18 @@ def path_validation():
         return path_validation()
 
 
-def process_inputs(path, extension):
+def process_inputs(path, input_file_type):
     """Driver function for processing the files"""
-    file_list = list_files(path, extension)
-    file_list = split_and_strip(file_list, extension)
-    file_list = length_check(file_list)  # todo len check
+    file_list = list_files(path, input_file_type)
+    file_list = split_and_strip(file_list, input_file_type)
+    filled_table = populate_table(file_list, input_file_type)
+    return filled_table
 
 
-def list_files(path, extension):
+def list_files(path, input_file_type):
     """Make a list of full file names with correct extension"""
     # Search directory, add full directories to
+    extension = input_file_type_to_extension(input_file_type)
     full_paths = []
     for root, dirs, files in os.walk(os.path.abspath(path), topdown=False):  # walk down the tree from givenPath
         for name in files:  # for each filename that is a file (not a dir)
@@ -69,8 +63,10 @@ def list_files(path, extension):
     return full_paths
 
 
-def split_and_strip(file_list, extension):
+def split_and_strip(file_list, input_file_type):
     """Split the list, strip elements and add a full path at the end"""
+
+    extension = input_file_type_to_extension(input_file_type)
 
     # Extract file names
     file_names = []
@@ -80,16 +76,77 @@ def split_and_strip(file_list, extension):
 
     # Strip, split and add full path as first position
     split_list = [x.split(',') for x in file_names]  # split file names into columns
+
+    for i in range(len(split_list)):
+        for j in range(len(split_list[i])):
+            split_list[i][j] = split_list[i][j].strip()
+
     for i in range(len(file_names)):
         split_list[i].insert(0, file_list[i])
-    for row in split_list:
-        print(row)
+    # for row in split_list:
+    #     print(row)  # todo remove
     return split_list
 
 
+def populate_table(file_list, input_file_type):
+    filled_table = []
+    # How the table should look like:
+    # [0] Full Path
+    # [1] Surname
+    # [2] Name
+    # [3] Year of birth
+    # [4] Father's name
+    # [5] Signatures
+    # [6] Name of file
+    # [7] Errors
 
-def length_check(file_list):
-    ... # TODO
+    # Create empty table to be filled
+    for i in range(len(file_list)):
+        filled_table.append([])
+        for j in range(0, 8):
+            filled_table[i].append("")
+
+    # Fill fields that are the same for all tables
+    for i in range(len(file_list)):
+        filled_table[i][0] = file_list[i][0]
+        row_length = len(file_list[i])
+        if row_length < 6:
+            filled_table[i][7] += "za mało przecinków; "
+        else:
+            filled_table[i][1] = file_list[i][1]  # Surname
+            filled_table[i][2] = file_list[i][2]  # Name
+            filled_table[i][3] = file_list[i][3]  # Year of birth
+            filled_table[i][4] = file_list[i][4]  # Father's name
+
+    # Fill signatures
+    for i in range(len(file_list)):
+        if input_file_type == 1:
+            signature_fields = file_list[i][5:-1]
+            print(signature_fields) #todo testing
+
+
+    # testing todo remove
+    print(filled_table)
+    for row in filled_table:
+        print(row)
+    # testing todo remove
+
+    return filled_table
+
+
+def input_file_type_to_extension(input_file_type):
+    if input_file_type == 1:
+        return ".jpg"
+    elif input_file_type == 2:
+        return ".jpg"
+    elif input_file_type == 3:
+        return ".tif"
+
+
+def check_errors(filled_table, input_file_type):
+    """Return the table with errors checked"""
+    ...
+    return filled_table
 
 
 main()
