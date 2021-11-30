@@ -1,6 +1,7 @@
 import os
 import pathlib
-import pandas as pd
+# import pandas as pd
+
 
 def main():
     input_file_type = input('Podaj typ plików:\n'
@@ -13,15 +14,11 @@ def main():
         path = path_validation()
         filled_table = process_inputs(path, input_file_type)
         filled_table = check_errors(filled_table, input_file_type)
-        pandas_table = pd.DataFrame(data=filled_table, columns=['Ścieżka', 'Nazwisko', 'Imię', 'Rok urodzenia',
-                                                                'Imię ojca', 'Sygnatury', 'Końcówka', 'Błędy'])
-        save_to_file(pandas_table, input_file_type)
-
-        pd.set_option("display.max_rows", None, "display.max_rows", None)
-        pd.set_option('display.max_columns', 10)
-        pd.set_option('display.width', 10000)
-        print(pandas_table)
-
+        # pandas_table = pd.DataFrame(data=filled_table, columns=['Ścieżka', 'Nazwisko', 'Imię', 'Rok urodzenia',
+        #                                                         'Imię ojca', 'Sygnatury', 'Końcówka', 'Błędy'])
+        save_to_file(filled_table, input_file_type)
+        # for row in filled_table:
+        #     print(row)
         # Run the program again
         main()
     elif input_file_type in ["", "0"]:
@@ -117,9 +114,9 @@ def populate_table(file_list, input_file_type):
         filled_table[i][0] = file_list[i][0]
         row_length = len(file_list[i])
         if row_length < 6:
-            filled_table[i][7] += "za mało przecinków; "
+            filled_table[i][7] += "za mało przecinków, "
         elif row_length > 6 and (input_file_type == 2 or input_file_type == 3):
-            filled_table[i][7] += "za dużo przecinków; "
+            filled_table[i][7] += "za dużo przecinków, "
         else:
             # Correct number of fields, fill table:
             filled_table[i][1] = file_list[i][1]  # Surname
@@ -134,7 +131,7 @@ def populate_table(file_list, input_file_type):
                 signature_fields = file_list[i][5:-1]
                 for signature in signature_fields:
                     if signature != "":
-                        filled_table[i][5] += signature + "; "
+                        filled_table[i][5] += str(signature) + ", "
                 filled_table[i][6] = file_list[i][-1]
 
             # POW
@@ -166,7 +163,7 @@ def check_errors(filled_table, input_file_type):
     #todo
 
 
-def save_to_file(pandas_table, input_file_type):
+def save_to_file(filled_table, input_file_type):
     next_free_number = 0
     file_name = ""
     if input_file_type == 1:
@@ -182,9 +179,24 @@ def save_to_file(pandas_table, input_file_type):
         else:
             next_free_number = i
             break
-    pandas_table.to_csv(str("./" + file_name + str(next_free_number)) + ".csv", index=False,
-                      encoding="windows-1250", sep=';')
-    print("\nLista zapisana do pliku " + file_name + str(next_free_number) + ".csv\n")
+    # pandas_table.to_csv(str("./" + file_name + str(next_free_number)) + ".csv", index=False,
+    #                   encoding="windows-1250", sep=';')
+    file_name = file_name + str(next_free_number) + ".csv"
+    f = open(file_name, "a", encoding="windows-1250", errors="replace")
+    f.write("Ściezka;Nazwiska;Imiona;Rok_urodzenia;Imie_ojca;Sygnatury;Nazwa_pliku;Bledy\n")
+    for i in range(len(filled_table)):
+        f.write(filled_table[i][0] + ";"
+                + filled_table[i][1] + ";"
+                + filled_table[i][2] + ";"
+                + filled_table[i][3] + ";"
+                + filled_table[i][4] + ";"
+                + filled_table[i][5] + ";"
+                + filled_table[i][6] + ";"
+                + filled_table[i][7] + "\n"
+                )
+    f.close()
+
+    print("\nLista zapisana do pliku " + file_name)
 
 
 main()
