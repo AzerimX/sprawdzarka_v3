@@ -19,6 +19,7 @@ def main():
         save_to_file(filled_table, input_file_type)
         # for row in filled_table:
         #     print(row)
+
         # Run the program again
         main()
     elif input_file_type in ["", "0"]:
@@ -43,7 +44,7 @@ def path_validation():
 
 
 def process_inputs(path, input_file_type):
-    """Driver function for processing the files"""
+    """Driver function for processing the files, returns 2D list"""
     file_list = list_files(path, input_file_type)
     file_list = split_and_strip(file_list, input_file_type)
     filled_table = populate_table(file_list, input_file_type)
@@ -115,6 +116,14 @@ def populate_table(file_list, input_file_type):
         row_length = len(file_list[i])
         if row_length < 6:
             filled_table[i][7] += "za mało przecinków, "
+            if row_length >= 3:
+                # Fill name and surname only
+                filled_table[i][1] = file_list[i][1]  # Surname
+                filled_table[i][2] = file_list[i][2]  # Name
+            if row_length >= 4:
+                filled_table[i][3] = file_list[i][3]  # Year of birth
+            if row_length >= 5:
+                filled_table[i][4] = file_list[i][4]  # Father's name
         elif row_length > 6 and (input_file_type == 2 or input_file_type == 3):
             filled_table[i][7] += "za dużo przecinków, "
         else:
@@ -158,9 +167,25 @@ def input_file_type_to_extension(input_file_type):
 
 def check_errors(filled_table, input_file_type):
     """Return the table with errors checked"""
+    # How the table should look like:
+    # [0] Full Path
+    # [1] Surname
+    # [2] Name
+    # [3] Year of birth
+    # [4] Father's name
+    # [5] Signatures
+    # [6] Name of file
+    # [7] Errors
+
+    for row in filled_table:
+        if input_file_type == 1 and row[5] == "":
+            row[7] += "brak sygnatury, "
+        if row[1] == "":
+            row[7] += "brak nazwiska, "
+        if row[2] == "":
+            row[7] += "brak imienia, "
 
     return filled_table
-    #todo
 
 
 def save_to_file(filled_table, input_file_type):
