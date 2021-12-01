@@ -116,17 +116,17 @@ def populate_table(file_list, input_file_type):
         row_length = len(file_list[i])
         if row_length < 6:
             filled_table[i][7] += "za mało przecinków, "
-            if row_length >= 3:
-                # Fill name and surname only
+            if row_length >= 2:
                 filled_table[i][1] = file_list[i][1]  # Surname
+            if row_length >= 3:
                 filled_table[i][2] = file_list[i][2]  # Name
             if row_length >= 4:
                 filled_table[i][3] = file_list[i][3]  # Year of birth
             if row_length >= 5:
                 filled_table[i][4] = file_list[i][4]  # Father's name
-        elif row_length > 6 and (input_file_type == 2 or input_file_type == 3):
-            filled_table[i][7] += "za dużo przecinków, "
         else:
+            if row_length > 6 and (input_file_type == 2 or input_file_type == 3):
+                filled_table[i][7] += "za dużo przecinków, "
             # Correct number of fields, fill table:
             filled_table[i][1] = file_list[i][1]  # Surname
             filled_table[i][2] = file_list[i][2]  # Name
@@ -145,13 +145,13 @@ def populate_table(file_list, input_file_type):
 
             # POW
             elif input_file_type == 2:
-                start_of_file_name = file_list[i][5].find("_")
-                filled_table[i][5] = file_list[i][5][:start_of_file_name]  # fix me variable numbers
-                filled_table[i][6] = file_list[i][5][start_of_file_name:]
+                start_of_file_name = file_list[i][-1].find("_")
+                filled_table[i][5] = file_list[i][-1][:start_of_file_name]  # fix me variable numbers
+                filled_table[i][6] = file_list[i][-1][start_of_file_name:]
 
             # PSZ - signature field should be empty
             elif input_file_type == 3:
-                filled_table[i][6] = file_list[i][5]
+                filled_table[i][6] = file_list[i][-1]
 
     return filled_table
 
@@ -184,6 +184,15 @@ def check_errors(filled_table, input_file_type):
             row[7] += "brak nazwiska, "
         if row[2] == "":
             row[7] += "brak imienia, "
+
+        if contains_digits(row[1]):
+            row[7] += "cyfry w nazwisku, "
+        if contains_digits(row[2]):
+            row[7] += "cyfry w imieniu, "
+        if not contains_digits(row[3]) and row[3] != "":
+            row[7] += "brak cyfr w roku urodzenia, "
+        if contains_digits(row[4]):
+            row[7] += "cyfryw w imieniu ojca, "
 
     return filled_table
 
@@ -221,7 +230,18 @@ def save_to_file(filled_table, input_file_type):
                 )
     f.close()
 
-    print("\nLista zapisana do pliku " + file_name)
+    print("\nLista zapisana do pliku " + file_name + " (encoding: Windows-1250)")
+
+
+def contains_digits(input_string):
+    """Check if strings contains digits"""
+    digits = False
+    for character in input_string:
+        if character.isdigit():
+            digits = True
+            break
+
+    return digits
 
 
 main()
