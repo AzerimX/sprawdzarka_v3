@@ -14,11 +14,14 @@ def main():
         path = path_validation()
         filled_table = process_inputs(path, input_file_type)
         filled_table = check_errors(filled_table, input_file_type)
-        # pandas_table = pd.DataFrame(data=filled_table, columns=['Ścieżka', 'Nazwisko', 'Imię', 'Rok urodzenia',
-        #                                                         'Imię ojca', 'Sygnatury', 'Końcówka', 'Błędy'])
         save_to_file(filled_table, input_file_type)
-        # for row in filled_table:
-        #     print(row)
+
+        # Show only rows with errors
+        error_number = 1
+        for row in filled_table:
+            if row[7] != "":
+                print(str(error_number) + ". " + str(row[7]) + ": ", row[1:7])
+                error_number += 1
 
         # Run the program again
         main()
@@ -177,7 +180,7 @@ def check_errors(filled_table, input_file_type):
     # [6] Name of file
     # [7] Errors
 
-    for row in filled_table:
+    for i, row in enumerate(filled_table):
         if input_file_type == 1 and row[5] == "":
             row[7] += "brak sygnatury, "
         if row[1] == "":
@@ -192,7 +195,23 @@ def check_errors(filled_table, input_file_type):
         if not contains_digits(row[3]) and row[3] != "":
             row[7] += "brak cyfr w roku urodzenia, "
         if contains_digits(row[4]):
-            row[7] += "cyfryw w imieniu ojca, "
+            row[7] += "cyfry w w imieniu ojca, "
+
+        # Checking KPO
+        if input_file_type == 1:
+            extension_length = len(input_file_type_to_extension(input_file_type))
+            if row[0][-1 - extension_length] == "a" and i != 0:
+                if filled_table[i][0][:-1 - extension_length] != filled_table[i-1][0][:-extension_length]:
+                    print(filled_table[i][0][:-1 - extension_length])
+                    print(filled_table[i-1][0][:-extension_length])
+                    filled_table[i-1][7] += "niejednolity opis stron, "
+                    filled_table[i][7] += "niejednolity opis stron (a), "
+
+        # Last step
+        if row[5] != "" and input_file_type == 1:
+            row[5] = row[5][0:-2]  # Remove ", " from end
+        if row[7] != "":
+            row[7] = row[7][0:-2]  # Remove ", " from end
 
     return filled_table
 
